@@ -1412,8 +1412,8 @@ function sfjson_encode_ex($value)
  */
 function sf404()
 {
-    $c = sfget_instance('Default_DefaultController');
-    $c->notFoundAction();
+    header('HTTP/1.1 404 not found!');
+    include ROOT_DIR . DS . 'theme/404.html';
 }
 
 /**

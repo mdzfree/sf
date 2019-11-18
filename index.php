@@ -41,7 +41,6 @@
             }
         }
     } else {
-        $c = sfget_instance('Default_DefaultController');
-        $c->notFoundAction();
+        sf404();
     }
     sfquit();
