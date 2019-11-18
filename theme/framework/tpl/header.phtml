@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <title><?php echo $title ?></title>
+        <link rel="stylesheet" href="<?php echo $this->getAssetUrl('css/layui.css') ?>">
+        <link rel="stylesheet" href="<?php echo $this->getAssetUrl('css/style.css') ?>">
+    </head>
+    <body>
+        <div class="layui-header header">
+            <div class="layui-main">
+                <a class="logo" href="/">
+                    <img src="<?php echo sfurl('/asset/logo.png') ?>" alt="samefree">
+                </a>
+                <ul class="layui-nav layui-bg-blue">
+                    <li class="layui-nav-item layui-this"><a href="">首页</a></li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">解决方案</a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="/cms">SFCMS</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item"><a href="/bbs">社区</a></li>
+                </ul>
+            </div>
+        </div>

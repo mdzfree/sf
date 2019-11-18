@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>500</title>
+    <style>
+        body{
+            background-color:#444;
+            font-size:14px;
+        }
+        h3{
+            font-size:60px;
+            color:#eee;
+            text-align:center;
+            padding-top:30px;
+            font-weight:normal;
+        }
+        a,h7{
+            font-size:24px;
+            color:#eee;
+            text-align:center;
+            margin-top:30px;
+            font-weight:normal;
+            text-decoration: none;
+            display: block;
+        }
+        a {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+<h3>500 Server Error!</h3>
+<?php
+if (isset($GLOBALS['report'])) :
+    ?>
+    <h7>Report: <span style="text-decoration: underline"><?php echo $GLOBALS['report'];?></span></h7>
+<?php
+else :
+    ?>
+    <h7>:( Sorry, there is no way to find help!</h7>
+<?php
+endif;
+?>
+<br />
+<p style="text-align: center">
+    <a href="<?php echo sfurl('/'); ?>">Home</a> &nbsp;&nbsp;<a href="javascript:;" style="cursor: default ; font-size: 18px">/</a>&nbsp;&nbsp; <a href="javascript:;" onclick="window.history.go(-1)">Go back</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<local>
+    <extension>
+        <json>json_encode</json>
+        <xml>_array_to_xml</xml>
+    </extension>
+    <system>
+        <appid>wap</appid>
+    </system>
+</local>

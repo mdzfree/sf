@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <module_name>Default</module_name>
+    <info>
+        <vendor>core</vendor>
+        <branch>common</branch>
+        <version>0.1</version>
+    </info>
+</config>

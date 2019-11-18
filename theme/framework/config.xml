@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <info>
+        <product>m</product>
+        <vendor>core</vendor>
+        <version>1.0 v1</version>
+        <author>jackman</author>
+    </info>
+    <dir>
+        <map>
+            <from>us</from>
+            <to>country=us</to>
+        </map>
+    </dir>
+    <request>
+        <map>
+            <from>/admin/login</from>
+            <to>/login</to>
+        </map>
+    </request>
+</config>

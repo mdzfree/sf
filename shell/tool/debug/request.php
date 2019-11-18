@@ -1,0 +1,2 @@
+<?php
+    sfdebug($_REQUEST);

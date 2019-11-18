@@ -1,0 +1,6 @@
+!config.php
+/.svn
+/config.php
+
+/.idea
+/module/list.cache.php

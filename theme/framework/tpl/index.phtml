@@ -1,0 +1,97 @@
+<?php
+include $this->getTemplateFile('header');
+?>
+    <div class="layui-main site-inline">
+        <div class="site-tree">
+            <div class="layui-form" style="height: 38px; margin: 10px 13px 0 0;">
+                <select lay-filter="tabVersion">
+                    <option value="new">1.0</option>
+                </select>
+                <div class="layui-unselect layui-form-select">
+                    <div class="layui-select-title"><input type="text" placeholder="请选择" value="2.x" readonly=""
+                                                           class="layui-input layui-unselect"><i class="layui-edge"></i>
+                    </div>
+                    <dl class="layui-anim layui-anim-upbit">
+                        <dd lay-value="new" class="layui-this">1.0</dd>
+                    </dl>
+                </div>
+            </div>
+            <ul class="layui-tree">
+
+                <li><h2>基础说明</h2></li>
+
+                <li class="site-tree-noicon layui-this">
+                    <a href="/">
+                        <cite>开始使用</cite>
+                        <em>Download</em>
+                    </a>
+                </li>
+                <li class="site-tree-noicon ">
+                    <a href="#">
+                        <cite>Hello World</cite>
+                        <em>模块 / 页面 / 控制器</em>
+                    </a>
+                </li>
+                <li class="site-tree-noicon ">
+                    <a href="#">
+                        <cite>特性介绍</cite>
+                        <em>功能扩展</em>
+                    </a>
+                </li>
+                <li class="site-tree-noicon ">
+                    <a href="#">
+                        <cite>常见问题</cite>
+                        <em>FAQ</em>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="site-content">
+            <h1 class="site-h1">开始使用 - 入门指南</h1>
+            <blockquote class="layui-elem-quote">
+                samefree是共同自由、免费，主要宗旨是让每个开发者能够根据自己的需求自由灵活配置、开发和使用。
+                该系统通过八年打造不断简化，升级；到目前开源已经做到入门简单、灵活配置和易于扩展的稳定版本，只需花五分钟学习即可快速搭建前后台的完善体系，非常适合中小企业敏捷开发的首选框架。
+            </blockquote>
+
+
+            <fieldset class="layui-elem-field layui-field-title site-title">
+                <legend><a name="get">获得 samefree</a></legend>
+            </fieldset>
+            <div class="site-text">
+                <p>1. 官网首页下载</p>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    你可以在我们的 <a href="http://www.samefree.com/">官网首页</a> 下载到 samefree 的最新版，它经过了自动化构建，更适合用于生产环境。目录结构如下：
+                </blockquote>
+                <pre class="layui-code layui-box layui-code-view"><h3 class="layui-code-h3">code</h3><ol
+                            class="layui-code-ol"><li>  ├─asset //资源目录</li><li>  │  │─cache //缓存资源输出</li><li>  │  ├─forge //伪代码资源，sfgetforge函数专用</li><li>  │  ├─internal //内部文件</li><li>  │  │  ├─data //内部数据</li><li>  │  │  │  ├─debug //shell/debug.php调试数据</li><li>  │  │  │  └─patch //shell/patch.php发布数据</li><li>  │  │  ├─debug //sfdebug函数调试数据</li><li>  │  │  └─report //系统错误报告数据</li><li>  ├─class  //类库目录</li><li>  ├─core //核心目录</li><li>  │─etc //自定义配置目录</li><li>  │  └─config.php //全局配置文件</li><li>  │─<strong>module</strong> //功能模块目录</li><li>  │  ├─模块名称 //小写</li><li>  │  │  ├─DefaultController.php //默认控制器文件，其它控制器可 &lt;控制器名&gt;Controoler.php，访问则：/模块名_控制器名/[index]</li><li>  │  │  ├─CommonBean.php //模块公共业务类，用于根据业务处理数据</li><li>  │  │  ├─CommonModel.php //模块公共模型类，用户操作数据</li><li>  │  │  └─autoload.php //自动加载文件，用于注册事件或自动执行逻辑</li><li>  │  ├─...</li><li>  │  └─list.cache.php //模块列表缓存文件，默认每小时自动生成，可删除</li><li>  │─shell //执行脚本目录</li><li>  │─<strong>theme</strong> //模板目录</li><li>  │  ├─模板名 //config.php中配置THEME_NAME</li><li>  │  │  ├─asset //模板资源目录，phtml中 $this->getAssetUrl(相对路径) 获取</li><li>  │  │  ├─layout //页面布局配置目录</li><li>  │  │  ├─tpl //模板目录</li><li>  │  │  └─config.xml //模板配置文件</li><li>  │  ├─... </li><li>  │  └─error.phtml //系统错误模板</li><li>  │─vendor //第三方安装目录</li><li>  │─.htaccess //重定向文件（Apache）</li><li>  │─web.config //重定向文件（IIS）</li><li>  │─<strong>config.php</strong> //系统配置文件</li><li>  │─index.php //首页引擎文件</li><li>  │─local.xml //系统支撑配置文件</li><li>  └─var.php //自定义函数文件</li><li></li></ol></pre>
+
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    解压后可直接访问
+                    <br />
+                    路由为：/模块名称[_控制器名称]/[方法名称]/参数1/值1
+                    <br />
+                    默认情况下加载 /module/default/DefaultControll.php 中的 indexAction方法（Action为固定函数名）
+                    <br />
+                    $this->view->parsePage('页面名');<br />
+                    $this->view->render();<br />
+                    会注册 /theme/模板名/layout/页面名.xml 并渲染 template 名称中的 tpl 目录模板文件<br />
+                    <strong style="color: red">备注:一般开发只需关注module和theme目录即可</strong>
+                </blockquote>
+                <p>2. Git 仓库下载</p>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    你也可以通过 <a href="https://github.com/mdzfree/sf/" target="_blank">GitHub</a> 得到 samefree 的完整开发包，以便于你进行二次开发，为我们贡献方案
+                    <br><br>
+                    <iframe src="http://ghbtns.com/github-btn.html?user=mdzfree&repo=sf&type=watch&count=true&size=large" allowtransparency="true" scrolling="0" width="156px" height="30px" frameborder="0"></iframe>
+                    <br><br>
+                    <div class="layui-btn-container">
+                        <a class="layui-btn layui-btn-normal" href="https://github.com/mdzfree/sf/" target="_blank" rel="nofollow" style="background-color: #24292E; color: #fff;">GitHub</a>
+                        <a class="layui-btn layui-btn-normal" href="https://gitee.com/samefree/cms/" target="_blank" rel="nofollow" style="background-color: #C71D23; color: #fff;">码云</a>
+                    </div>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+<?php
+include $this->getTemplateFile('footer');
+?>
