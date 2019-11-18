@@ -9,3 +9,12 @@ dev_mode=1
 console=1
 //模块缓存列表过期秒数
 module_cache=3600
+
+//定时任务配置    ::开始
+//检测介质
+async_type=io
+//执行线程数
+async_max=10
+//过期秒数
+async_exp=180
+//定时任务配置    ::结束

@@ -288,6 +288,7 @@ spl_autoload_register('sfload_module');
 //open_url('http://www.baidu.com')
 function sfopen_url($url, $param = array(), $method = 'get', $args = array('return' => false))
 {
+    sfdebug($url . "\r\n", 'autoload');
     if (!empty($param) && is_string($param)) {
         //针对json请求
         $ch = curl_init($url);
@@ -479,7 +480,7 @@ set_exception_handler('func_exception_crawl');
 /**
  * 注册事件
  * @param $event    事件名称
- * @param $object   方法对象
+ * @param Method|string $object   方法对象
  * @param null $key 事件唯一键名，默认则叠加不替换
  * @return int|null 事件唯一键名
  */
@@ -1797,6 +1798,7 @@ function sfquit($message = null, $header = true)
         sfget_instance('Core_Model')->close();
     }
     sfconsole_logs();
+    Core_Autoload::listenAsync();
     exit();
 }
 

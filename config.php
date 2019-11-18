@@ -6,7 +6,7 @@ $GLOBALS['__REQUEST'] = $_REQUEST;
 define('DB_PREFIX', '');
 define('DB_TABLE_PREFIX', 'sf_');
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'test');//test名称不会连接数据库
+define('DB_NAME', 'sf');//test名称不会连接数据库
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');
 
