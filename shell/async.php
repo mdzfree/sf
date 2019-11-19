@@ -24,7 +24,6 @@
                 if ($beginTime + $asyncExp >= time()) {
                     if (is_file($fileOkExp)) {
                         if (is_file($fileNew)) {
-                            sfdebug('aaaa');
                             @unlink($fileOkExp);
                             if (!empty($asyncSleep)) {
                                 if (filemtime($fileNew) + $asyncSleep < time()) {
@@ -64,17 +63,7 @@
                             @unlink($fileOkNew);
                         }
                     } elseif (is_file($fileNew)) {
-                        if (!empty($asyncSleep)) {
-                            if (filemtime($fileNew) + $asyncSleep < time()) {
-                                //如果修改时间间隔超过当前时间，则直接完成
-                                rename($fileNew, $fileOk);
-                            } else {
-                                //否则余下间隔过期
-                                touch($fileNew, filemtime($fileNew) - $asyncSleep + $asyncExp);
-                            }
-                        } else {
-                            rename($fileNew, $fileOk);
-                        }
+                        rename($fileNew, $fileOk);
                     }
                     $io->writeFile($fileOk, time());
                     $errors = sfget_event_exception_list('async');

@@ -21,10 +21,10 @@
         public function __construct($name, $host, $user, $pswd)
         {
             $this->curMonth = intval(date('m') / 3) + 1;
-            $this->_dbs = array(mysql_connect($host, $user, $pswd));
-            if ($this->_dbs[0]) {
-                mysql_select_db($name, $this->_dbs[0]);
-                mysql_query('SET NAMES UTF8MB4', $this->db());
+            $this->_dbs = array(mysqli_connect($host, $user, $pswd));
+            if ($this->db()) {
+                mysqli_select_db($this->db(), $name);
+                mysqli_query($this->db(), 'SET NAMES UTF8MB4');
             }
         }
 
@@ -113,14 +113,14 @@
             $sql = 'INSERT INTO ' . $tableName . '(id, `key`, content) VALUES(NULL, "%s", \'%s\')';
             $sql = sprintf($sql, $key, $data);
             try {
-                $result = mysql_query($sql, $this->db());
+                $result = mysqli_query($sql, $this->db());
                 if (!$result) {
                     throw new Exception();
                 }
             } catch (Exception $e) {
                 $cSql = 'CREATE TABLE IF NOT EXISTS `' . $tableName . '` (`id` int(11) NOT NULL AUTO_INCREMENT,  `key` varchar(200) NOT NULL,  `content` text NOT NULL,  PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
-                mysql_query($cSql, $this->db());
-                $result = mysql_query($sql, $this->db());
+                mysqli_query($this->db(), $cSql);
+                $result = mysqli_query($this->db(), $sql);
             }
             return $result ? $key : null;
         }
@@ -148,14 +148,14 @@
             $sql = 'INSERT INTO ' . $tableName . '(id, type, `key`, content, data, ip, `add`, `create`) VALUES(NULL, "%s", "%s", "%s", "%s", "%s", "%s", NOW())';
             $sql = sprintf($sql, mysql_escape_string($type), mysql_escape_string($key), mysql_escape_string($content), mysql_escape_string($data), $this->getIP(), mysql_escape_string($this->user));
             try {
-                $result = mysql_query($sql, $this->db());
+                $result = mysqli_query($this->db(), $sql);
                 if (!$result) {
                     throw new Exception('插入失败：' . $sql);
                 }
             } catch (Exception $e) {
                 $cSql = 'CREATE TABLE IF NOT EXISTS `' . $tableName . '` (`id` int(11) NOT NULL AUTO_INCREMENT,  `type` varchar(200) NOT NULL,  `key` varchar(200) NOT NULL,  `content` text NOT NULL,  `data` text DEFAULT NULL,  `ip` varchar(30) NOT NULL,  `add` varchar(200) DEFAULT NULL,  `create` datetime NOT NULL,  PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
-                mysql_query($cSql, $this->db());
-                $result = mysql_query($sql, $this->db());
+                mysqli_query($this->db(), $cSql);
+                $result = mysqli_query($this->db(), $sql);
             }
             return $result;
         }
@@ -172,10 +172,10 @@
             $this->index = $this->key2number($key);
             $tableName = DB_TABLE_PREFIX . 'log_' . $this->type . '_' . $this->index;
             $sql = sprintf('SELECT * FROM ' . $tableName . ' WHERE type = "%s" AND `key` = "%s" ORDER BY id DESC', mysql_escape_string($type), mysql_escape_string($key));
-            $result = mysql_query($sql, $this->db());
+            $result = mysqli_query($this->db(), $sql);
             $datas = array();
             if ($result) {
-                while ($ret = mysql_fetch_assoc($result)) {
+                while ($ret = mysqli_fetch_assoc($result)) {
                     $datas[] = $ret;
                 }
             }
@@ -234,8 +234,8 @@
             $this->type = $type;
             $this->index = $index;
             $sql = 'SELECT * FROM data_' . $d . ' WHERE `key` = "' . $key . '" LIMIT 1';
-            $result = mysql_query($sql, $this->db());
-            $row = mysql_fetch_array($result);
+            $result = mysqli_query($this->db(), $sql);
+            $row = mysqli_fetch_array($result);
             return $row['content'];
         }
 
@@ -245,7 +245,7 @@
         public function __destruct()
         {
             foreach ($this->_dbs as $key => $value) {
-                mysql_close($value);
+                mysqli_close($value);
             }
         }
     }

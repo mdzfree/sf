@@ -504,7 +504,7 @@ function sfregister_event($event, $object, $key = null)
 function sftrigger_event($event, $retMode = 1, $scale = null)
 {
     $params = func_get_args();
-    array_splice($params, 0, 2);
+    array_splice($params, 0, 3);
 
     if (!empty($GLOBALS['events'][$event])) {
         $returns = array();

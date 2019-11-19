@@ -2,6 +2,7 @@
     class Core_Mq extends Core_Bean
     {
         private $_session_id;//会话编号
+        private $_lastList;
 
         public function __construct($name = null)
         {
@@ -42,8 +43,65 @@
             return false;
         }
 
+        public function consume($exchange, $tag = null)
+        {
+            $this->_lastList = array();
+            if (!empty($tag)) {
+                $this->_session_id = $tag;
+            }
+            if (empty($this->_session_id)) {
+                $this->_session_id = sfget_now_time_long_number();
+            }
+            //占用任务
+            $sql = sprintf('UPDATE %s SET session_id = "%s", update_time = "' . date('Y-m-d H:i:s') .  '" WHERE status = 0 AND session_id = "" %s ORDER BY id ASC LIMIT 5', DB_TABLE_PREFIX . 'queue', $this->_session_id, ' AND ' . $this->db->quoteInto('exchange = ?', $exchange));
+            $result = $this->db->exec($sql);
+            if ($result) {
+                $sessionId = $this->_session_id;
+                $datas = $this->queue->session_id->$sessionId->getAll();
+                $this->_lastList = $datas;
+                return $datas;
+            }
+            return null;
+        }
+
+        public function set($data, $newData)
+        {
+            foreach ($this->_lastList as $key => $value) {
+                if ($value['id'] == $data['id']) {
+                    $this->_lastList[$key] = array_merge($this->_lastList[$key], $newData);
+                    return true;
+                }
+            }
+            return null;
+        }
+        
+        public function wait()
+        {
+            if (!empty($this->_lastList)) {
+                $this->begin();
+                $sessionId = $this->_lastList[0]['session_id'];
+                $this->update(array('status' => 1, 'update_time' => date('Y-m-d H:i:s')), array('session_id' => $sessionId));
+                foreach ($this->_lastList as $value) {
+                    $logBind = $value;
+                    $logBind['status'] = 1;
+                    $logBind['update_time'] = date('Y-m-d H:i:s');
+                    unset($logBind['id']);
+                    $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                    if ($result) {
+                        $this->delete(array('id' => $value['id']));
+                    } else {
+                        $this->rollBack();
+                        break;
+                    }
+                }
+                $this->commit();
+                return true;
+            }
+            return null;
+        }
+
         //消费
-        public function consume($exchange)
+        public function exeConsume($exchange)
         {
             $queryQty = 0;
             $execQty = 0;
