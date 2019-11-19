@@ -150,7 +150,7 @@
             try {
                 $result = mysql_query($sql, $this->db());
                 if (!$result) {
-                    throw new Exception();
+                    throw new Exception('插入失败：' . $sql);
                 }
             } catch (Exception $e) {
                 $cSql = 'CREATE TABLE IF NOT EXISTS `' . $tableName . '` (`id` int(11) NOT NULL AUTO_INCREMENT,  `type` varchar(200) NOT NULL,  `key` varchar(200) NOT NULL,  `content` text NOT NULL,  `data` text DEFAULT NULL,  `ip` varchar(30) NOT NULL,  `add` varchar(200) DEFAULT NULL,  `create` datetime NOT NULL,  PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;';

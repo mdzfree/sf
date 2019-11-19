@@ -288,7 +288,6 @@ spl_autoload_register('sfload_module');
 //open_url('http://www.baidu.com')
 function sfopen_url($url, $param = array(), $method = 'get', $args = array('return' => false))
 {
-    sfdebug($url . "\r\n", 'autoload');
     if (!empty($param) && is_string($param)) {
         //针对json请求
         $ch = curl_init($url);
@@ -497,19 +496,35 @@ function sfregister_event($event, $object, $key = null)
 
 /**
  * 触发事件
- * @param $event    事件名称
- * @param int $retMode  返回模式（-1直接返回, 0不返回, 1累积结果返回）
+ * @param $event 事件名称
+ * @param int $retMode 返回模式（-1直接返回, 0不返回, 1累积结果返回）
+ * @param string $scale 比例范围
  * @return array|mixed|null 事件处理后的结果
  */
-function sftrigger_event($event, $retMode = 1)
+function sftrigger_event($event, $retMode = 1, $scale = null)
 {
-    sfdebug(func_get_args(), 'trigger_event');
     $params = func_get_args();
     array_splice($params, 0, 2);
 
     if (!empty($GLOBALS['events'][$event])) {
         $returns = array();
-        foreach ($GLOBALS['events'][$event] as $key => $value) {
+        $events = $GLOBALS['events'][$event];
+        //部分处理逻辑
+        if (!empty($scale) && is_numeric(strpos($scale, '-'))) {
+            $total = count($events);
+            $len = $total / 10;
+            list($begin, $end) = explode('-', $scale);
+            if ($end > $begin) {
+                $qtyBegin = floor($begin * $len);
+                $qtyEnd = floor(($end - $begin)  * $len);
+                if ($qtyBegin < $total) {
+                    $events = array_slice($events, $qtyBegin, $qtyEnd < 1 ? 1 : $qtyEnd);
+                } else {
+                    $events = array();
+                }
+            }
+        }
+        foreach ($events as $key => $value) {
             try {
                 switch ($retMode) {
                     case -1:
@@ -590,6 +605,17 @@ function sfget_event_exception($event, $nullReturn = null)
     }
     return current($GLOBALS['event_exceptions'][$event]);
 }
+
+/**
+ * 获取事件异常
+ * @param $event    事件名称
+ * @return array    事件的第一个异常对象
+ */
+function sfget_event_exception_list($event)
+{
+    return $GLOBALS['event_exceptions'][$event];
+}
+
 
 /**
  * 获取IP地址
@@ -1698,6 +1724,18 @@ function sferror($errors = null)
 }
 
 /**
+ * 系统专用调试异常
+ * @param $msg string  错误信息
+ * @param int $code 错误代码
+ * @throws Exception    异常
+ */
+function sfexception($msg, $code = 0) {
+    $debugInfo = debug_backtrace();
+    $msg = date('Y-m-d H:i:s') . ' ' . $debugInfo[0]['file']. ' ('.$debugInfo[0]['line'].')： '. $msg;
+    throw new Exception($msg, $code);
+}
+
+/**
  * 根据当前文件和环境获取块文件路径
  * @param $__FILE__ 当前文件__FILE__
  * @param $name 块名称
@@ -1822,7 +1860,6 @@ foreach ($modules as $module) {
         include $autoFile;
     }
 }
-
 define('FUNC_IP', sfget_ip());
 /**
  * 如参数附带日志要求则记录日志标识

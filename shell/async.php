@@ -1,9 +1,11 @@
 <?php
+    sleep(5);
     include dirname(__FILE__) . DIRECTORY_SEPARATOR . 'lib.php';
     $io = Core_IoUtils::instance();
     $dir = ROOT_DIR . DS . 'asset'  . DS . 'internal' . DS . 'data' . DS . 'async' . DS;
     $no = sfret('__no', 1);
     $asyncType = sfread_etc_global('config.php', 'async_type');
+    $asyncMax = sfread_etc_global('config.php', 'async_max');
     if ($asyncType == 'io') {
         $asyncExp = sfread_etc_global('config.php', 'async_exp');
         $fileNew = sprintf('%snew.%s.log', $dir, $no);
@@ -12,7 +14,10 @@
         $fileOkExp = sprintf('%sok.exp.%s.log', $dir, $no);
         $beginTime = time();
         if (is_file($fileNew) || is_file($fileOkNew) || is_file($fileOkExp)) {
-            $result = sftrigger_event('async');//执行任务
+            $len = ceil(1 / $asyncMax * 10);
+            $begin = $no * $len - $len;
+            $scale = $begin . '-' . $no * $len;
+            $result = sftrigger_event('async', 1, $scale);//执行任务
             if ($beginTime + $asyncExp > time()) {
                 if (is_file($fileOkExp)) {
                     if (is_file($fileNew)) {
@@ -27,8 +32,13 @@
                     rename($fileNew, $fileOk);
                 }
                 $io->writeFile($fileOk, time());
-                if (sfarray_true($result)) {
-                    //TODO 记录错误原因
+                $errors = sfget_event_exception_list('async');
+                if (!empty($errors)) {
+                    $errorContent = '';
+                    foreach ($errors as $value) {
+                        $errorContent .= $value->getMessage() . "\r\n";
+                    }
+                    $io->appendFile($dir . 'error.log', $errorContent);
                 }
             }
         }

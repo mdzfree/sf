@@ -46,6 +46,12 @@ class Core_IoUtils extends Core_Base
         @chmod($file_path, $mode);
     }
 
+    function appendFile($file_path, $data, $mode = 0777)
+    {
+        file_put_contents($file_path, $data, FILE_APPEND);
+        @chmod($file_path, $mode);
+    }
+
     function getFileTmp($path)
     {
         $tmpfname = tempnam("/tmp", "FOO");

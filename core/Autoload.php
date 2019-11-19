@@ -22,7 +22,7 @@
                             if (filemtime($fileOkNew) + $asyncExp < time()) {
                                 if (!is_file($fileOkExp)) {//不存在超时执行中时
                                     $fp = fopen($fileOkNew, "w");//占有重启任务
-                                    if (flock($fp, LOCK_EX)) {
+                                    if (flock($fp, LOCK_EX | LOCK_NB)) {
                                         $io->writeFile($fileOkNew, time());
                                         if (copy($fileOkNew, $fileOkExp)) {
                                             sfopen_url(sfurl('/shell/async.php', array('GET' => array('__no' => $i, '__mode' => 'exp'))));
@@ -35,7 +35,7 @@
                             }
                         } elseif (is_file($fileOk)) {
                             $fp = fopen($fileOk, "w");//占有重启任务
-                            if (flock($fp, LOCK_EX)) {
+                            if (flock($fp, LOCK_EX | LOCK_NB)) {
                                 $io->writeFile($fileOk, time());
                                 if (copy($fileOk, $fileOkNew)) {
                                     sfopen_url(sfurl('/shell/async.php', array('GET' => array('__no' => $i, '__mode' => 'reset'))));
@@ -48,7 +48,7 @@
                             if (filemtime($fileNew) + $asyncExp < time()) {
                                 if (!is_file($fileOkExp)) {//不存在超时执行中时
                                     $fp = fopen($fileOk, "w");//占有重启任务
-                                    if (flock($fp, LOCK_EX)) {
+                                    if (flock($fp, LOCK_EX | LOCK_NB)) {
                                         $io->writeFile($fileOk, time());
                                         if (copy($fileOk, $fileOkExp)) {
                                             sfopen_url(sfurl('/shell/async.php', array('GET' => array('__no' => $i, '__mode' => 'exp'))));
