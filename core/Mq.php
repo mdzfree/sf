@@ -43,7 +43,7 @@
             return false;
         }
 
-        public function consume($exchange, $tag = null)
+        public function getList($exchange, $tag = null)
         {
             $this->_lastList = array();
             if (!empty($tag)) {
@@ -53,7 +53,7 @@
                 $this->_session_id = sfget_now_time_long_number();
             }
             //占用任务
-            $sql = sprintf('UPDATE %s SET session_id = "%s", update_time = "' . date('Y-m-d H:i:s') .  '" WHERE status = 0 AND session_id = "" %s ORDER BY id ASC LIMIT 5', DB_TABLE_PREFIX . 'queue', $this->_session_id, ' AND ' . $this->db->quoteInto('exchange = ?', $exchange));
+            $sql = sprintf('UPDATE %s SET session_id = "%s", update_time = "' . date('Y-m-d H:i:s') .  '" WHERE status = 0 AND session_id = "" %s ORDER BY id ASC LIMIT 1', DB_TABLE_PREFIX . 'queue', $this->_session_id, ' AND ' . $this->db->quoteInto('exchange = ?', $exchange));
             $result = $this->db->exec($sql);
             if ($result) {
                 $sessionId = $this->_session_id;
@@ -64,10 +64,10 @@
             return null;
         }
 
-        public function set($data, $newData)
+        public function update($id, $newData)
         {
             foreach ($this->_lastList as $key => $value) {
-                if ($value['id'] == $data['id']) {
+                if ($value['id'] == $id) {
                     $this->_lastList[$key] = array_merge($this->_lastList[$key], $newData);
                     return true;
                 }

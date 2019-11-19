@@ -10,9 +10,9 @@
         public function consumeMessage()
         {
             $mq = Core_Mq::instance();
-            $datas = $mq->consume('message');
+            $datas = $mq->getList('message');
             if (!empty($datas)) {
-                $mq->set($datas[0], array('log' => '测试用！'));
+                $mq->update($datas[0]['id'], array('log' => '测试用！'));
                 $mq->wait();
             }
         }
