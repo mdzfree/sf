@@ -348,6 +348,7 @@ class Core_View extends Core_Base
         } else {
             $file = $tpl;  //路径？？？
         }
+        Core_Autoload::listenAsync();
         if (is_file($file)) {
             $tmpContent = ob_get_contents();
             ob_clean();

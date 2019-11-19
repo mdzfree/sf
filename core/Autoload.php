@@ -6,6 +6,10 @@
          */
         public static function listenAsync()
         {
+            if (!empty($GLOBALS['listens']['async'])) {
+                return;//只执行一次监听
+            }
+            $GLOBALS['listens']['async'] = time();
             $asyncMax = sfread_etc_global('config.php', 'async_max');
             if (!empty($asyncMax)) {
                 $io = Core_IoUtils::instance();

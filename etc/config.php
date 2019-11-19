@@ -14,7 +14,9 @@ module_cache=3600
 //检测介质
 async_type=io
 //执行线程数
-async_max=10
+async_max=1
 //过期秒数
 async_exp=180
+//停留时间，一般是挂起任务防止执行频繁
+async_sleep=10
 //定时任务配置    ::结束

@@ -1836,7 +1836,6 @@ function sfquit($message = null, $header = true)
         sfget_instance('Core_Model')->close();
     }
     sfconsole_logs();
-    Core_Autoload::listenAsync();
     exit();
 }
 
