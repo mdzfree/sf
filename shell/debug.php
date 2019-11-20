@@ -138,7 +138,7 @@
                             $log .= "\r\n" . print_r($result, true);
                         }
                     } else {
-                        $log .= "\r\n" . "不方法：" . $fun;
+                        $log .= "\r\n" . "找不到方法：" . $fun;
                     }
                 } else {
                     $log .= "\r\n" . "不存在：" . $class . "类";

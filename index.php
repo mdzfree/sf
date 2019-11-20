@@ -1,20 +1,7 @@
 <?php
     list($usec, $sec)   =   explode(' ', microtime());
     define('BEGIN_TIME', ((float)$usec + (float)$sec));
-    error_reporting(E_ALL);
-    $GLOBALS['__REQUEST'] = $_REQUEST;
-    $localXML = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'local.xml';
-    if (is_file($localXML)) {
-        try {
-            $xml = new SimpleXMLElement(file_get_contents($localXML));
-            $GLOBALS['__LOCAL'] = json_decode(json_encode($xml), true);
-        } catch (Exception $e) {
-        }
-    }
-    require 'config.php';
-    require 'vendor/autoload.php';
-    require 'core/function.php';
-    require 'var.php';
+    require 'include.php';
     ob_start();
     $request = sfget_instance('Core_Request');
     $actionName = $request->getAction();

@@ -1,4 +1,13 @@
 <?php
+error_reporting(E_ALL);
+$localXML = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'local.xml';
+if (is_file($localXML)) {
+    try {
+        $xml = new SimpleXMLElement(file_get_contents($localXML));
+        $GLOBALS['__LOCAL'] = json_decode(json_encode($xml), true);
+    } catch (Exception $e) {
+    }
+}
 $GLOBALS['__GET'] = $_GET;
 $GLOBALS['__POST'] = $_POST;
 $GLOBALS['__REQUEST'] = $_REQUEST;
