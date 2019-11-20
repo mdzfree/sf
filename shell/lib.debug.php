@@ -1,7 +1,7 @@
 <?php
     $flagOk = true;
     if (DEV_MODE == 1) {//调试模式时
-        if (!is_numeric(strpos(sfget_ip(), '::1'))) {//当非本地
+        if (!is_numeric(strpos(sfget_ip(), '::1')) && !is_numeric(strpos(sfget_ip(), '127.0.0.1'))) {//当非本地
             if (ENDE_KEY == '_sf20131111') {//且token配置为框架默认时（防止源码直接上线后被执行）
                 $flagOk = false;
             } else if ($_REQUEST['token'] != ENDE_KEY) {//当token不对时

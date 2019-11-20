@@ -16,4 +16,26 @@
                 $mq->wait();
             }
         }
+
+        /**
+         * 建立导出消息队列
+         */
+        public function export()
+        {
+            $base = $this->db->select()->from(DB_TABLE_PREFIX . 'entity');
+            Core_Mq::instance()->publishExportTask('Default_CommonBean-write', $base->assemble(), 1, 1);
+        }
+
+        //回调消费函数
+        public function write($datas, $queue)
+        {
+            $headers = array('id', 'type', 'type_id', 'data', 'create_time');
+            $io = Core_IoUtils::instance();
+            $dsPath = '/asset/cache/' . session_id() . '/export/' . $queue['props'] . '.csv';
+            $file = ROOT_DIR . $dsPath;
+            $io->createDir(dirname($file));
+            $io->writeCsv($file, $headers, $datas);
+            sfexception('故意异常！');
+            return $dsPath;
+        }
     }

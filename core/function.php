@@ -496,7 +496,7 @@ function sfregister_event($event, $object, $key = null)
 
 /**
  * 触发事件
- * @param $event 事件名称
+ * @param string $event 事件名称
  * @param int $retMode 返回模式（-1直接返回, 0不返回, 1累积结果返回）
  * @param string $scale 比例范围
  * @return array|mixed|null 事件处理后的结果
@@ -575,8 +575,8 @@ function sftrigger_event($event, $retMode = 1, $scale = null)
 
 /**
  * 移除事件
- * @param $event    事件名称
- * @param $key  事件唯一键名
+ * @param string $event    事件名称
+ * @param string $key  事件唯一键名
  */
 function sfremove_event($event, $key)
 {
@@ -585,7 +585,7 @@ function sfremove_event($event, $key)
 
 /**
  * 清除所有事件
- * @param $event    事件名称
+ * @param string $event    事件名称
  */
 function sfclear_event($event)
 {
@@ -594,7 +594,7 @@ function sfclear_event($event)
 
 /**
  * 获取事件异常
- * @param $event    事件名称
+ * @param string $event    事件名称
  * @param null $nullReturn  无异常内容时默认返回的异常对象
  * @return Exception    事件的第一个异常对象
  */
@@ -608,8 +608,8 @@ function sfget_event_exception($event, $nullReturn = null)
 
 /**
  * 获取事件异常
- * @param $event    事件名称
- * @return array    事件的第一个异常对象
+ * @param string $event   事件名称
+ * @return Exception[]    事件的第一个异常对象
  */
 function sfget_event_exception_list($event)
 {

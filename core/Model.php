@@ -9,6 +9,9 @@ class Core_Model extends Core_Base
     public $name;
     public $tableName;
     static private $globalDb;
+    /**
+     * @var Zend_Db_Adapter_Abstract
+     */
     protected $db;
     protected $data;
     private $_language;
@@ -375,9 +378,18 @@ class Core_Model extends Core_Base
         foreach ($param as $key => $value) {
             $base->where($key . ' = ?', $value);
         }
+        $base->limit(1);
         return $this->db->fetchRow($base);
     }
 
+    public function queryList($param = array())
+    {
+        $base = $this->db->select()->from($this->tableName);
+        foreach ($param as $key => $value) {
+            $base->where($key . ' = ?', $value);
+        }
+        return $this->db->fetchAll($base);
+    }
 
     public function insert($bind = array())
     {

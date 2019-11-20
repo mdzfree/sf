@@ -146,6 +146,27 @@ class Core_IoUtils extends Core_Base
         }
     }
 
+    function writeCsv($file_path, $headers, $contents)
+    {
+        setlocale(LC_ALL, 'en_US.UTF-8');
+        $handle =   fopen($file_path, 'w');
+        fputcsv($handle, $headers);
+        $cols = array();
+        foreach ($headers as $key => $value) {
+            $cols[$value] = $key;
+        }
+        for ($i = 0, $len = count($contents); $i < $len; $i++) {
+            $data = array();
+            foreach ($contents[$i] as $key => $value) {
+                if (isset($cols[$key])) {
+                    $data[$cols[$key]] = $value;
+                }
+            }
+            fputcsv($handle, $data);
+        }
+        fclose($handle);
+    }
+
     function isFileMd5($file)
     {
         if (is_file($file)) {

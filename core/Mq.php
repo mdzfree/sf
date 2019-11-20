@@ -19,10 +19,10 @@
 
         /**
          * 发布消息
-         * @param $exchange 交换机名
-         * @param $routingKey   路由名
-         * @param $props    附加参数
-         * @param $body 消息体
+         * @param Core_Base $exchange  交换机名
+         * @param string $routingKey    路由名
+         * @param string $props     附加参数
+         * @param string $body  消息体
          * @return bool 是否发布成功
          */
         public function publish($exchange, $routingKey, $props, $body)
@@ -101,7 +101,7 @@
         }
 
         //消费
-        public function exeConsume($exchange)
+        public function execTask($exchange, $limit = 5)
         {
             $queryQty = 0;
             $execQty = 0;
@@ -109,7 +109,7 @@
                 $this->_session_id = sfget_now_time_long_number();
             }
             //占用任务
-            $sql = sprintf('UPDATE %s SET session_id = "%s", update_time = "' . date('Y-m-d H:i:s') .  '" WHERE status = 0 AND session_id = "" %s ORDER BY id ASC LIMIT 5', DB_TABLE_PREFIX . 'queue', $this->_session_id, ' AND ' . $this->db->quoteInto('exchange = ?', $exchange));
+            $sql = sprintf('UPDATE %s SET session_id = "%s", update_time = "' . date('Y-m-d H:i:s') .  '" WHERE status = 0 AND session_id = "" %s ORDER BY id ASC LIMIT ' . $limit, DB_TABLE_PREFIX . 'queue', $this->_session_id, ' AND ' . $this->db->quoteInto('exchange = ?', $exchange));
             $result = $this->db->exec($sql);
             if ($result) {
                 $sessionId = $this->_session_id;
@@ -119,26 +119,25 @@
                     foreach ($datas as $value) {
                         switch ($value['exchange']) {
                             case 'event':
-                                $result = sftrigger_event('event_' . $value['routing_key'], 1, $value);
-                                if (sfarray_true($result)) {
-                                    $this->update(array('status' => 1, 'update_time' => date('Y-m-d H:i:s')), array('id' => $value['id']));
-                                    $logBind = $value;
-                                    $logBind['status'] = 1;
-                                    $logBind['update_time'] = date('Y-m-d H:i:s');
-                                    unset($logBind['id']);
-                                    $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
-                                    if ($result) {
-                                        $this->delete(array('id' => $value['id']));
-                                        $execQty++;
-                                    }
+                                $log = '';
+                                $eventName = $value['routing_key'];
+                                sftrigger_event($eventName, 0, $value);
+                                $errors = sfget_event_exception_list($eventName);
+                                if (empty($errors)) {
+                                    $value['status'] = 1;
                                 } else {
-                                    $this->update(array('session_id' => '', 'update_time' => date('Y-m-d H:i:s')), array('id' => $value['id'], 'session_id' => $sessionId));
-                                    $logBind = $value;
-                                    $exception = sfget_event_exception('event_' . $value['routing_key'], new Exception('无事件触发'));
-                                    $logBind['log'] = $exception['message'];
-                                    $logBind['update_time'] = date('Y-m-d H:i:s');
-                                    unset($logBind['id']);
-                                    $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                                    $value['status'] = 0;
+                                    foreach ($errors as $e) {
+                                        $log .= $e->getMessage() . "\r\n";
+                                    }
+                                    $value['log'] = $log;
+                                }
+                                $logBind = $value;
+                                unset($logBind['id']);
+                                $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                                if ($result) {
+                                    $this->delete(array('id' => $value['id']));
+                                    $execQty++;
                                 }
                                 break;
                             case 'path':
@@ -148,7 +147,6 @@
                                     $object = new $class();
                                     if (!empty($object)) {
                                         if (method_exists($object, $fun)) {
-                                            $result = 0;
                                             if (!empty($value['body'])) {
                                                 $json = json_decode($value['body'], true);
                                                 if (!empty($json) && is_array($json)) {
@@ -172,32 +170,73 @@
                                             } else {
                                                 $result = $object->$fun();
                                             }
-                                            $log .= "\r\n" . print_r($result, true);
+                                            $log .= print_r($result, true) . "\r\n";
                                         } else {
-                                            $log .= "\r\n" . "不方法：" . $fun;
+                                            $log .= "不方法：" . $fun . "\r\n";
                                         }
                                     } else {
-                                        $log .= "\r\n" . "不存在：" . $class . "类";
+                                        $log .= "不存在：" . $class . "类" . "\r\n";
                                     }
                                 }
                                 if ($result) {
-                                    $this->update(array('status' => 1, 'update_time' => date('Y-m-d H:i:s')), array('id' => $value['id']));
-                                    $logBind = $value;
-                                    $logBind['status'] = 1;
-                                    $logBind['update_time'] = date('Y-m-d H:i:s');
-                                    unset($logBind['id']);
-                                    $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
-                                    if ($result) {
-                                        $this->delete(array('id' => $value['id']));
-                                        $execQty++;
-                                    }
+                                    $value['status'] = 1;
                                 } else {
-                                    $this->update(array('session_id' => '', 'update_time' => date('Y-m-d H:i:s')), array('id' => $value['id'], 'session_id' => $sessionId));
-                                    $logBind = $value;
-                                    $logBind['log'] = $log;
-                                    $logBind['update_time'] = date('Y-m-d H:i:s');
-                                    unset($logBind['id']);
-                                    $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                                    $value['status'] = 0;
+                                }
+                                $logBind = $value;
+                                $logBind['log'] = $log;
+                                unset($logBind['id']);
+                                $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                                if ($result) {
+                                    $this->delete(array('id' => $value['id']));
+                                    $execQty++;
+                                }
+                                break;
+                            case 'export':
+                                $log = '';
+                                if (is_numeric(strpos($value['routing_key'], '-'))) {
+                                    list($class, $fun) = explode('-', $value['routing_key']);
+                                    $object = new $class();
+                                    if (!empty($object)) {
+                                        if (method_exists($object, $fun)) {
+                                            $result = 0;
+                                            list($start, $limit) = explode('-', $value['props']);
+                                            if (!empty($value['body'])) {
+                                                if (!empty($limit)) {
+                                                    $sql = $value['body'] . ' limit ' . $start . ',' . ($limit - $start);
+                                                    $datas = $this->db->fetchAll($sql);
+                                                    try {
+                                                        $result = $object->$fun($datas, $value);
+                                                        if (!is_bool($result)) {
+                                                            $value['data'] = json_encode($result);
+                                                            $result = true;
+                                                        }
+                                                    } catch (Exception $e) {
+                                                        $result = false;
+                                                        $log .= $e->getMessage() . "\r\n";
+                                                    }
+                                                } else {
+                                                    $log .= "找不到分页参数" . "\r\n";
+                                                }
+                                            } else {
+                                                $log .= "找不到导出SQL" . "\r\n";
+                                            }
+                                            $log .= print_r($result, true) . "\r\n";
+                                        } else {
+                                            $log .= "不方法：" . $fun . "\r\n";
+                                        }
+                                    } else {
+                                        $log .= "不存在：" . $class . "类" . "\r\n";
+                                    }
+                                }
+                                $logBind = $value;
+                                $logBind['log'] = $log;
+                                $logBind['update_time'] = date('Y-m-d H:i:s');
+                                unset($logBind['id']);
+                                $result = $this->db->insert(DB_TABLE_PREFIX . 'queue_log', $logBind);
+                                if ($result) {
+                                    $this->delete(array('id' => $value['id']));
+                                    $execQty++;
                                 }
                                 break;
                         }
@@ -205,5 +244,22 @@
                 }
             }
             return $queryQty . ':' . $execQty;
+        }
+
+        public function publishEventTask($name, $param)
+        {
+            $this->publish('event', $name, '', is_array($param) ? json_encode($param) : $param);
+        }
+
+        public function publishPathTask($path, $param)
+        {
+            $this->publish('path', $path, '', is_array($param) ? json_encode($param) : $param);
+        }
+
+        public function publishExportTask($callbackPath, $sql, $limit, $total)
+        {
+            for ($i = 0; $i < $total; $i += $limit) {
+                $this->publish('export', $callbackPath, $i . '-' . ($i + $limit), $sql);
+            }
         }
     }
