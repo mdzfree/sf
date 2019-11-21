@@ -204,10 +204,6 @@ class Core_Request extends Core_Base
     public function getOriginUrl($url)
     {
         return $url;//custom
-        $result = self::$cache->getUrl($url);
-        if (!empty($result)) {
-            return $result;
-        }
     }
 
 

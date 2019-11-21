@@ -578,9 +578,6 @@ class Core_Image extends Core_Base
                     $width = $dw;
                     $height = $height * $par;
                 }
-            } else {
-                $width = $width;
-                $height = $height;
             }
             $nImg = ImageCreateTrueColor($width, $height); //新建一个真彩色画布
             ImageCopyReSampled($nImg, $img, 0, 0, 0, 0, $width, $height, $w, $h); //重采样拷贝部分图像并调整大小

@@ -81,15 +81,15 @@ class Core_IoUtils extends Core_Base
                 if (!in_array($file, array('.', '..', '.svn', '.gitignore', 'Thumbs.db'))) {
                     if (is_dir($dirname . '/' . $file)) {
                         sfclear_all_dir($dirname . '/' . $file, $onlyFileType);
-                        !@rmdir($dirname . '/' . $file);
+                        @rmdir($dirname . '/' . $file);
                     } else {
                         if ($onlyFileType !== null) {
                             $type = explode($onlyFileType, $file);
                             if (count($type) == 2 && empty($type[1])) {
-                                !@unlink($dirname . '/' . $file);
+                                @unlink($dirname . '/' . $file);
                             }
                         } else {
-                            !@unlink($dirname . '/' . $file);
+                            @unlink($dirname . '/' . $file);
                         }
                     }
                 }
@@ -264,9 +264,9 @@ class Core_IoUtils extends Core_Base
                 if (!in_array($file, array('.', '..', '.svn', '.gitignore', 'Thumbs.db'))) {
                     if (is_dir($dirname . '/' . $file)) {
                         Core_IoUtils::instance()->clearDir($dirname . '/' . $file);
-                        !@rmdir($dirname . '/' . $file);
+                        @rmdir($dirname . '/' . $file);
                     } else {
-                        !@unlink($dirname . '/' . $file);
+                        @unlink($dirname . '/' . $file);
                     }
                 }
             }

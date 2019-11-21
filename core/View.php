@@ -853,7 +853,7 @@ class Core_View extends Core_Base
                         if (isset($_REQUEST[$data[$i]])) {
                             return $_REQUEST[$data[$i]] ? $_REQUEST[$data] : 0;
                         }
-                    };
+                    }
                 } else {
                     if (isset($_REQUEST[$data])) {
                         return $_REQUEST[$data] ? $_REQUEST[$data] : 0;

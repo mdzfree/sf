@@ -801,7 +801,9 @@ function sfmd5_short($a){
         $g = ord( $a[ $f ] ),
         $d .= $s[ ( $g ^ ord( $a[ $f + 8 ] ) ) - $g & 0x1F ],
         $f++
-    );
+    ) {
+        //
+    }
     return $d;
 }
 

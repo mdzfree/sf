@@ -92,7 +92,6 @@ class Core_Language extends Core_Base
      */
     public function getTranslationLanguage($filename, $path = null)
     {
-        return array();//custom
         $defFileBase = null;
         $curFileBase = null;
         if ( empty($path) ) {
@@ -109,8 +108,8 @@ class Core_Language extends Core_Base
                 $curFileBase = EXMODULE_CUR_DIR . DS . $path . DS;
             }
         }
-        $data = $this->getExLanguageFile($fileBase, $filename, $defFileBase, $curFileBase);
-        foreach ($data as $key => $value) {
+        $datas = $this->getExLanguageFile($fileBase, $filename, $defFileBase, $curFileBase);
+        foreach ($datas as $key => $value) {
             $this->data[$key] = $value;
         }
         return $this->data;
