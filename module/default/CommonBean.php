@@ -38,4 +38,10 @@
             sfexception('故意异常！');
             return $dsPath;
         }
+
+        public function testLocal()
+        {
+            $this->setLocal('application', $this);
+            return $this->getLocal('application');
+        }
     }

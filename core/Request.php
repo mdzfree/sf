@@ -84,11 +84,14 @@ class Core_Request extends Core_Base
                 $bUrl = strtolower(basename($url));
                 $bFrom = strtolower($value['from']);
                 $bTo = strtolower($value['to']);
-                if (is_numeric(strpos($lUrl, $bFrom)) && is_numeric(strpos($bUrl, '-'))) {
+                $splitI = strpos($bUrl, '-');
+                $paramI = strpos($bUrl, '?');
+                $okI = is_numeric($splitI) && (is_numeric($paramI) ? $splitI < $paramI : true);
+                if (is_numeric(strpos($lUrl, $bFrom)) && $okI) {
                     $url = str_replace($bFrom, $value['to'], $lUrl);
                     $this->redirect($url);
                 }
-                if (is_numeric(strpos($lUrl, $bTo)) && (is_numeric(strpos($bUrl, '-')) || is_numeric($bUrl))) {
+                if (is_numeric(strpos($lUrl, $bTo)) && ($okI || is_numeric($bUrl))) {
                     $url = str_replace($bTo, $value['from'], $lUrl);
                     break;
                 } else {

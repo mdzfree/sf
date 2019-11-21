@@ -1,8 +1,8 @@
-!config.php
 /.svn
 /config.php
-
 /.idea
 /vendor
 /module/list.cache.php
 /vendor/autoload.php
+/.sonar
+/sonar-project.properties

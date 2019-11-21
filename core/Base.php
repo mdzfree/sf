@@ -289,4 +289,33 @@ class Core_Base
         $this->errors = $object->errors;
         return false;
     }
+
+    public function setLocal($key, $data)
+    {
+        $io = Core_IoUtils::instance();
+        $file = ROOT_DIR . DS . 'asset' . DS . 'internal' . DS . 'data' . DS . 'local' . DS . get_class($this) . DS . $key . '.log';
+        $io->createDir(dirname($file));
+        $io->writeFile($file, serialize($data));
+        return $this;
+    }
+
+    public function getLocal($key)
+    {
+        $io = Core_IoUtils::instance();
+        $file = ROOT_DIR . DS . 'asset' . DS . 'internal' . DS . 'data' . DS . 'local' . DS . get_class($this) . DS . $key . '.log';
+        if (is_file($file)) {
+            $data = $io->readFile($file);
+            if (!empty($data)) {
+                return unserialize($data);
+            }
+        }
+        return null;
+    }
+
+    public function deleteLocal($key)
+    {
+        $file = ROOT_DIR . DS . 'asset' . DS . 'internal' . DS . 'data' . DS . 'local' . DS . get_class($this) . DS . $key . '.log';
+        @unlink($file);
+        return $this;
+    }
 }
