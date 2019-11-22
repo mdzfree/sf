@@ -1,3 +1,18 @@
+/*
+Navicat MySQL Data Transfer
+
+Source Server         : localhost_3306
+Source Server Version : 50553
+Source Host           : localhost:3306
+Source Database       : install
+
+Target Server Type    : MYSQL
+Target Server Version : 50553
+File Encoding         : 65001
+
+Date: 2019-11-22 11:28:45
+*/
+
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
@@ -13,9 +28,12 @@ CREATE TABLE `sf_memory` (
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `area` (`area`)
+  KEY `area` (`area`) USING BTREE
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COMMENT='记忆表，用于临时存储数据，类似内存缓存';
 
+-- ----------------------------
+-- Records of sf_memory
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for `sf_queue`
@@ -51,6 +69,7 @@ CREATE TABLE `sf_queue_log` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '消息状态，0为未消费，1为已消费',
   `session_id` varchar(50) NOT NULL COMMENT '消费会话编号',
   `log` varchar(500) NOT NULL DEFAULT '' COMMENT '消息日志',
+  `data` binary(255) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' COMMENT '消息存储数据',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
