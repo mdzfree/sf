@@ -79,7 +79,7 @@
                             }
                         } else {
                             $handler = fopen($tmpName, 'rb');
-                            $content = fread($handler, 50);
+                            $content = fread($handler, 100);
                             fclose($handler);
                             if (is_numeric(strpos($content, 'class '))) {
                                 if (is_numeric(strpos($content, 'extends'))) {

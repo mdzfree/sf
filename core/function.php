@@ -640,7 +640,12 @@ function sfget_ip()
             $realip = getenv("REMOTE_ADDR");
         }
     }
-    return empty($realip) ? '-' : $realip;
+    $ip = empty($realip) ? '-' : $realip;
+    if (is_numeric(strpos($ip, ','))) {
+        $ips = explode(',', $ip);
+        return current($ips);
+    }
+    return $ip;
 }
 
 /**
