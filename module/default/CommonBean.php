@@ -44,4 +44,14 @@
             $this->setLocal('application', $this);
             return $this->getLocal('application');
         }
+
+        public function testJoin()
+        {
+            $list = $this->list->getAll();
+            $list = Core_Union::instance()->select($list)
+                ->join(DB_TABLE_PREFIX . 'mold', 'id', 'mold_id')
+                ->join(DB_TABLE_PREFIX . 'site', 'id', 'site_id', array('name' => 'site_name'))
+                ->getAll();
+            return $list;
+        }
     }

@@ -140,12 +140,20 @@
     class _Bean_Table
     {
         public $_name;
+        /**
+         * @var Core_Bean
+         */
         public $_bean;
         public function __construct($name, $bean)
         {
             $this->_name = $name;
             $this->_bean = $bean;
             $this->_bean->from($name);
+        }
+
+        public function getAll()
+        {
+            return $this->_bean->getAll();
         }
 
         public function __get($name)
@@ -312,6 +320,10 @@
             return new _Bean_Table($name, $this);
         }
 
+        /**
+         * @param $name
+         * @return _Bean_Table
+         */
         public function __get($name)
         {
             $name = strtolower($name);

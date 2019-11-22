@@ -16,4 +16,18 @@
             */
             return false;
         }
+
+        public function getList($param = array())
+        {
+            $base = $this->db->select()->from(DB_TABLE_PREFIX . 'list');
+            if (!empty($param['mold_name'])) {
+                $mold = Core_Union::instance()->getValue(DB_TABLE_PREFIX . 'mold', 'name', $param['mold_name']);
+                if (!empty($mold)) {
+                    $base->where('mold_id = ?', $mold['id']);
+                } else {
+                    $base->where('1=0');
+                }
+            }
+            return $this->db->fetchAll($base);
+        }
     }
