@@ -1,0 +1,11 @@
+<?php
+    if (strlen($value['value']) < 100) :
+?>
+<input type="text" name="id[<?php echo $value['id']; ?>]" value="<?php echo $value['value']; ?>" data="<?php echo $value['value']; ?>" class="layui-input" style="height: 28px"/>
+<?php
+    else:
+?>
+<textarea name="id[<?php echo $value['id']; ?>]" class="layui-textarea" data="<?php echo $value['value']; ?>"><?php echo $value['value']; ?></textarea>
+<?php
+    endif;
+?>

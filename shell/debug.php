@@ -374,4 +374,8 @@
     if (Core_Model::isOpen()) {
         Core_Model::instance()->close();
     }
-    sfconsole_logs();
+    if (!empty($_SESSION['_log_flag']) && !empty($GLOBALS['console_logs'])) {
+        $dataJson = sfjson_encode_ex($GLOBALS['console_logs']);
+        $kMd5 = sfmd5_short(md5($dataJson));
+        Core_Cache::instance()->setArea(15)->set('Console:' . Core_Request::instance()->getCurUrl() . '|' . $kMd5, $dataJson);
+    }

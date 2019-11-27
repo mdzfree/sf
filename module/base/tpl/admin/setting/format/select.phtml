@@ -1,0 +1,12 @@
+<div class="layui-input-inline">
+    <select name="id[<?php echo $value['id']; ?>]" data="<?php echo $value['value']; ?>" value="<?php echo $value['value']; ?>" lay-search="">
+        <?php
+            $formatData = json_decode($value['format_data'], true);
+            foreach ($formatData as $v) :
+        ?>
+        <option value="<?php echo $v['code']; ?>"<?php echo $v['code'] == $value['value'] ? ' selected' : ''; ?>><?php echo $v['name']; ?></option>
+        <?php
+            endforeach;
+        ?>
+    </select>
+</div>

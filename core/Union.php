@@ -102,11 +102,16 @@
          * @param string $rightName 外联表名
          * @param string $rightId   外联表唯一值列名
          * @param string $rightValue 获取的唯一值
+         * @param string $fieldName 可选返回的列名的值
          * @return array|null
          */
-        public function getValue($rightName, $rightId, $rightValue)
+        public function getValue($rightName, $rightId, $rightValue, $fieldName = null)
         {
             if ($this->initTable($rightName, $rightId)) {
+                sfconsole($rightValue);
+                if (!empty($fieldName)) {
+                    return $this->tableDatas[$rightName][$rightId][$rightValue][$fieldName];
+                }
                 return $this->tableDatas[$rightName][$rightId][$rightValue];
             }
             return null;

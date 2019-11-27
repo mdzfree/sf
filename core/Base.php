@@ -29,6 +29,9 @@ class Core_Base
      * @var array
      */
     static $classGlobal;
+    private $transData;
+    private $flags = array('languages' => array());
+    public $_language;
     public $lastMessage;
     public $lastData;
     public $lastError;
@@ -44,8 +47,46 @@ class Core_Base
         if (!isset($GLOBALS['instances'][GLOBAL_INSTANCE_KEY][$className])) {
             $GLOBALS['instances'][GLOBAL_INSTANCE_KEY][$className] = $this;
         }
+        $this->_language = sfget_instance('Core_Language');
         $this->init();
     }
+
+    public function loadLanguage($name = null, $path = null)
+    {
+        if ($name == null) {
+            $name = 'common';
+        }
+        if (!empty($this->flags[$path])) {
+            return;
+        }
+        $language = sfget_instance('Core_Language');
+        $this->transData = $language->getTranslationLanguage($name, $path);
+        $this->flags[$path] = true;
+    }
+    /**
+     * 将字符转为当前语言，可接受多个参数
+     * @param  Mixed $key 接受多个参数
+     * @return String      翻译后的字符串
+     */
+    public function __()
+    {
+        $ret = '';
+        $args = func_get_args();
+        foreach ($args as $key) {
+            $k = strtolower(trim($key));
+            if (isset($this->transData[$k])) {
+                $ret .= $this->transData[$k];
+            } else {
+                if (isset($this->_language->data[$k])) {
+                    $ret .= $this->_language->data[$k];
+                } else {
+                    $ret .= $key;   //无法翻译，则返回原文
+                }
+            }
+        }
+        return $ret;
+    }
+
 
     /**
      * 类实例化（单例模式）
@@ -288,6 +329,11 @@ class Core_Base
         $this->lastErrorCode = $object->lastErrorCode;
         $this->errors = $object->errors;
         return false;
+    }
+    
+    public function setErrorNull($content = '未知错误')
+    {
+        return $this->setErrorCode(100001)->setError($content);
     }
 
     public function setLocal($key, $data)

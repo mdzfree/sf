@@ -18,6 +18,7 @@ class Core_Controller extends Core_Base
         if ($names[0] === 'Ex') {
             $names[0] = $names[1];
         }
+        $names[0] = strtolower($names[0]);
         if (substr($names[0], 0, 2) == 'aa') {
             $this->view->setPath($names[0] . '/' . $names[1]);
         } else {

@@ -5,16 +5,13 @@
  */
 class Core_View extends Core_Base
 {
-    private $transData;
     private $blocks;
     private $layouts;
-    private $flags = array('languages' => array());
     private $operates;
     public $template = array('attributes' => array(), 'path' => '');
     public $bind = array();
     public $config;
     public $isRender = true;
-    public $_language;
 
     function __construct()
     {
@@ -23,49 +20,8 @@ class Core_View extends Core_Base
         if ($names[0] === 'Ex') {
             $names[0] = $names[1];
         }
-        $this->setPath($names[0]);
-        $this->_language = sfget_instance('Core_Language');
+        $this->setPath(strtolower($names[0]));
     }
-
-    public function loadLanguage($name = null, $path = null)
-    {
-        if ($name == null) {
-            $name = 'common';
-        }
-        if ($path === null) {
-            $path = $this->template['path'];
-        }
-        if (!empty($this->flags[$path])) {
-            return;
-        }
-        $language = sfget_instance('Core_Language');
-        $this->transData = $language->getTranslationLanguage($name, $path);
-        $this->flags[$path] = true;
-    }
-    /**
-     * 将字符转为当前语言，可接受多个参数
-     * @param  Mixed $key 接受多个参数
-     * @return String      翻译后的字符串
-     */
-    public function __()
-    {
-        $ret = '';
-        $args = func_get_args();
-        foreach ($args as $key) {
-            $k = strtolower(trim($key));
-            if (isset($this->transData[$k])) {
-                $ret .= $this->transData[$k];
-            } else {
-                if (isset($this->_language->data[$k])) {
-                    $ret .= $this->_language->data[$k];
-                } else {
-                    $ret .= $key;   //无法翻译，则返回原文
-                }
-            }
-        }
-        return $ret;
-    }
-
     /**
      * 解析页面，在插件目录，重写插件目录，模板目录解析配置文件
      * @param String $page  页面名称
@@ -405,7 +361,7 @@ class Core_View extends Core_Base
             } else {
                 $relativePath = THEME_DEF_DIR;
             }
-        } elseif ($this->template['path'] == 'Admin') {
+        } elseif (strtolower($this->template['path']) == 'admin') {
             $relativePath = MODULE_DIR . DS . $this->template['path'];
         }
         if (isset($this->template['name'])) {
@@ -591,12 +547,6 @@ class Core_View extends Core_Base
         if (isset($GLOBALS['_PAGE'])) {
             $this->bind['_PAGE'] = $GLOBALS['_PAGE'];
         }
-        /*
-        if (empty($this->transData)) {
-            $this->loadLanguage('common', '/');
-            $this->loadLanguage(null, $this->template['path']);
-        }
-        *///custom
         $content = ob_get_contents();
         ob_clean();
         ob_start();
@@ -627,7 +577,7 @@ class Core_View extends Core_Base
         if (isset($_COOKIE['asset_lang']) && isset($GLOBALS['assets'][$_COOKIE['asset_lang']])) {
             $rootUrl = $GLOBALS['assets'][$_COOKIE['asset_lang']];
         }
-        $path = isset($module) ? ucfirst($module) : $this->template['path'];
+        $path = !empty($module) ? $module : $this->template['path'];
         if ($path === '/' || $file[0] == '/') {
             if ($file[0] == '/') {
                 $path = '/';
@@ -649,7 +599,7 @@ class Core_View extends Core_Base
                     }
                     break;
             }
-        } elseif ($path === 'Admin') {
+        } elseif ($path === 'admin') {
             $url = $rootUrl . '/module/admin/asset/' . $file;
         } else {
             switch ($mode) {
@@ -709,9 +659,9 @@ class Core_View extends Core_Base
      * @param string $module
      * @return string
      */
-    public function getAssetPath($file = '', $plugin = null, $mode = 2)
+    public function getAssetPath($file = '', $module = null, $mode = 2)
     {
-        $path = isset($plugin) ? ucfirst($plugin) : $this->template['path'];
+        $path = !empty($module) ? $module : $this->template['path'];
         if ($path === '/' || $file[0] == '/') {
             if ($file[0] == '/') {
                 $path = '/';
@@ -732,7 +682,7 @@ class Core_View extends Core_Base
                     break;
             }
 
-        } elseif ($path === 'Admin') {
+        } elseif ($path === 'admin') {
             $rPath =  ROOT_DIR . '/module/admin/asset/' . $file;
         } else {
             switch ($mode) {

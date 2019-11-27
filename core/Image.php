@@ -29,7 +29,7 @@ class Core_Image extends Core_Base
             $baseDir = ROOT_DIR . DS;
         }
         if (empty($path)) {
-            return $baseDir . 'asset/internal/no_image.png';
+            return $baseDir . 'asset/no_image.png';
         }
         $path = str_replace('\\', DS, $path);
         $path = str_replace('/', DS, $path);
@@ -42,7 +42,7 @@ class Core_Image extends Core_Base
             $path = 'asset' . DS . $tmpArrs[1];
         }
         if (empty($path) || !is_file($baseDir . $path)) {
-            $path   =   'asset/internal/no_image.png';
+            $path   =   'asset/no_image.png';
         }
         $src = $baseDir . $path;
         return $src;
@@ -77,7 +77,7 @@ class Core_Image extends Core_Base
             $path = 'asset' . DS . $tmpArrs[1];
         }
         if (empty($path) || !is_file($baseDir . $path)) {
-            $path   =   'asset/internal/no_image.png';
+            $path   =   'asset/no_image.png';
         }
         $src = $baseDir . $path;
         $url = null;
@@ -649,5 +649,49 @@ class Core_Image extends Core_Base
         $image->finish($str, $size, $font_size, $code, $font_family, $filetype, $dpi, $rotation);
     }
 
-
+    /**
+     * 上传图片
+     * @param array $file   $_FILES['file']对象
+     * @param string $ds    相对子目录名
+     * @param bool $md5    是否使用文件md5存储（节省空间）
+     * @param null $name    图片别名，为空则密文随机
+     * @return bool|mixed|string    返回字符串路径则上传成功
+     */
+    function upload($file, $ds = '', $md5 = true, $name = null)
+    {
+        if (!empty($ds)) {
+            if ($ds == 'cache') {
+                return $this->setErrorCode(100503)->setError('不可以指定缓存目录！');
+            }
+            $ds .= '/';
+        }
+        if (!empty($file['tmp_name'])) {
+            list($fileName, $fileExt) = explode('.', basename($file['name']));
+            $fileExt = strtolower($fileExt);
+            if (in_array($fileExt, array('jpg', 'jpeg', 'gif', 'png'))) {
+                if ($md5) {
+                    $md5str = sfmd5_short(md5_file($file['tmp_name']));
+                    $path = '/asset/image/' . $ds . (empty($name) ? $md5str : urlencode($name) . '_' . $md5str) . '.' . $fileExt;
+                    if (file_exists(ROOT_DIR . $path)) {//存在则直接返回
+                        return $path;
+                    }
+                } else {
+                    $path = '/asset/image/' . $ds . (empty($name) ? sfmd5_short(md5(date('Y-m-d'))) . sfrand_string(5) : urlencode($name)) . '.' . $fileExt;
+                    while(file_exists(ROOT_DIR . $path)) {//重名
+                        $path = str_replace('.' . $fileExt, sfrand_string(3) . '.' . $fileExt, $path);
+                    }
+                }
+                Core_IoUtils::instance()->createDir(dirname(ROOT_DIR . $path));
+                if (move_uploaded_file($file['tmp_name'], ROOT_DIR . $path)) {
+                    return $path;
+                } else {
+                    return $this->setErrorCode(100500)->setError('图片上传失败，请检查文件权限！', $fileExt);
+                }
+            } else {
+                return $this->setErrorCode(100500)->setError('不支持%s格式！', $fileExt);
+            }
+        } else {
+            return $this->setErrorCode(100404)->setError('未找到上传文件！');
+        }
+    }
 }

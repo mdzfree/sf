@@ -248,10 +248,7 @@ class Core_Request extends Core_Base
         $this->root = BASEDIR;
         $path = (isset($data['path'])) ? $data['path'] : '';
 
-        // TODO
-        // 应该只替换一次 BUG
-        $path = str_replace(BASEDIR, '', $path);
-
+        $path = sfstr_replace_limit(BASEDIR, '', $path, 1);
 
         if (strpos($path, '.php') != 0) {
             $path = substr($path, strpos($path, '.php') + 4);
@@ -322,6 +319,7 @@ class Core_Request extends Core_Base
                         $_path[$i+1] .= ('/' . $_path[$i + 2]);
                     }
                     $_REQUEST[$_path[$i]] = $_path[$i+1];
+                    $_GET[$_path[$i]] = $_path[$i+1];
                 }
             }
         }

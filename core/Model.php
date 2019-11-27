@@ -14,7 +14,6 @@ class Core_Model extends Core_Base
      */
     protected $db;
     protected $data;
-    private $_language;
     function __construct($tableName = null, $config = null)
     {
         //parent::__construct();
@@ -103,70 +102,6 @@ class Core_Model extends Core_Base
         return array_key_exists($key, $this->data);
     }
 
-    /**
-     * 将同ID的多语言记录字段互补，生成新记录
-     * @param   array $data  多语言记录
-     * @return  array        处理后的记录
-     */
-    public function preDeal($data, $tableName)
-    {
-        $temp = array();
-        $curLang = self::getCurLanguage();
-        if (!empty($data)) {
-            for ($i = 0, $len = count($data); $i < $len ; $i++) {
-                if (array_key_exists($data[$i][$tableName . '_i18n__' . $tableName . '_id'], $temp)) {
-                    foreach ($temp[$data[$i][$tableName . '_i18n__' . $tableName . '_id']] as $key => $value) {
-                        if (empty($temp[$data[$i][$tableName . '_i18n__' . $tableName . '_id']][$key])) {
-                            $temp[$data[$i][$tableName . '_i18n__' . $tableName . '_id']][$key] = $data[$i][$key];
-                        }
-                    }
-                } else {
-                    $temp[$data[$i][$tableName . '_i18n__' . $tableName . '_id']] = array();
-                    if (!empty($data[$i]))
-                    foreach ($data[$i] as $key => $value) {
-                        $temp[$data[$i][$tableName . '_i18n__' . $tableName . '_id']][$key] = $value;
-                    }
-                }
-            }
-        }
-        $temp = array_merge($temp);
-        return $temp;
-    }
-
-
-    /**
-     * 获取语言代码(没有设值就返回当前语言代码)，该方法会被继承，有默认调用的用处，
-     * 也可在带调用model的时候 $model->setLanguageCode(?) 预处理获取指定语言数据
-     */
-    public function getLanguageCode()
-    {
-
-        if (empty($this->_language)) {
-
-            $this->_language = self::getCurLanguageCode();
-        }
-        return $this->_language;
-    }
-
-    /**
-     * 设置模块语言
-     * @param String $code
-     */
-    public function setLanguageCode($code)
-    {
-        $this->_language = $code;
-    }
-
-    public function getI18n($tmp, $tableName, $data = null)
-    {
-        $tmp = $this->db->select()->from(array('foo' => $tmp))
-                                    ->joinLeft(array('bar' => DB_TABLE_PREFIX . $tableName . '_i18n'), 'foo.' . $tableName . '__id = bar.' . $tableName . '_i18n__' . $tableName . '_id');
-
-
-        $this->sort($tmp, $tableName, $data);
-		$tmp->order(new Zend_Db_Expr('bar.' . $tableName . '_i18n__language = "' . $this->getLanguageCode() . '" DESC'));
-		return $tmp;
-    }
 
     function open()
     {

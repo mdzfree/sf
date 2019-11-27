@@ -505,7 +505,6 @@ function sftrigger_event($event, $retMode = 1, $scale = null)
 {
     $params = func_get_args();
     array_splice($params, 0, 3);
-
     if (!empty($GLOBALS['events'][$event])) {
         $returns = array();
         $events = $GLOBALS['events'][$event];
@@ -529,7 +528,11 @@ function sftrigger_event($event, $retMode = 1, $scale = null)
                 switch ($retMode) {
                     case -1:
                         if (is_object($value)) {
-                            $result = call_user_func_array(array($value, 'execute') , array($params));
+                            if ($value instanceof \Closure) {
+                                $result = call_user_func_array($value , array($params));
+                            } else {
+                                $result = call_user_func_array(array($value, 'execute') , array($params));
+                            }
                             if ($result !== null) {
                                 return $result;
                             }
@@ -542,14 +545,22 @@ function sftrigger_event($event, $retMode = 1, $scale = null)
                         break;
                     case 0:
                         if (is_object($value)) {
-                            call_user_func_array(array($value, 'execute') , array($params));
+                            if ($value instanceof \Closure) {
+                                call_user_func_array($value , array($params));
+                            } else {
+                                call_user_func_array(array($value, 'execute') , array($params));
+                            }
                         } else {
                             include $value;
                         }
                         break;
                     case 1:
                         if (is_object($value)) {
-                            $returns[] = call_user_func_array(array($value, 'execute') , array($params));
+                            if ($value instanceof \Closure) {
+                                $returns[] = call_user_func_array($value , array($params));
+                            } else {
+                                $returns[] = call_user_func_array(array($value, 'execute') , array($params));
+                            }
                         } else {
                             $returns[] = include $value;
                         }
@@ -686,6 +697,37 @@ function sfstr_index($string, $char = ',', $index = 0)
 }
 
 /**
+ * 给字符串#xxx#变量赋值
+ * @param string $str  需要替换的字符串
+ * @param array $param    变量值 array(name=>value)
+ * @return string mixed
+ */
+function sfstr_var($str, $param)
+{
+    foreach ($param as $key => $value) {
+        $str = str_replace('#' . $key . '#', $value, $str);
+    }
+    return $str;
+}
+/**
+ * 对字符串执行指定次数替换
+ * @param  Mixed $search   查找目标值
+ * @param  Mixed $replace  替换值
+ * @param  Mixed $subject  执行替换的字符串／数组
+ * @param  Int   $limit    允许替换的次数，默认为-1，不限次数
+ * @return Mixed
+ */
+function sfstr_replace_limit($search, $replace, $subject, $limit=-1){
+    if(is_array($search)){
+        foreach($search as $k=>$v){
+            $search[$k] = '`'. preg_quote($search[$k], '`'). '`';
+        }
+    }else{
+        $search = '`'. preg_quote($search, '`'). '`';
+    }
+    return preg_replace($search, $replace, $subject, $limit);
+}
+/**
  * 有一个是否有效数据
  * @param $param array    数组参数
  * @param $config array   判断配置，array('id', 'no')，如果id存在有值，则返回id；array('no' => 'numeric|array|string')表示no为特定类型，则返回no；array('type' => array('YES', 'NO'))如果type符合YES或NO，则返回type
@@ -743,7 +785,7 @@ function sfis_valid($param, $config)
     }
     foreach ($config as $key => $value) {
         if (is_numeric($key)) {
-            if (!array_key_exists($value, $param)) {
+            if (empty($param[$value])) {
                 return $value;
             }
         } else {
@@ -793,8 +835,43 @@ function sfarray_true($array) {
 }
 
 /**
+ * 堆入（合并）数组
+ * @param array $array  堆入的数组
+ * @param array $push_array 需要推入的数组
+ * @param array|null $only_keys 不为空则只堆入指定key的值  array('key1', 'key2', 'array_key' => 'push_array_key')
+ * @param bool $rep 为空也替换
+ * @return array|mixed  堆入后的数组
+ */
+function sfarray_push(&$array, $push_array, $only_keys = null, $rep = false) {
+    if (is_array($only_keys)) {
+        foreach ($only_keys as $key => $value) {
+            if (is_numeric($key)) {
+                if ($rep) {
+                    $array[$value] = $push_array[$value];
+                } else {
+                    if (!empty($push_array[$value])) {
+                        $array[$value] = $push_array[$value];
+                    }
+                }
+            } else {
+                if ($rep) {
+                    $array[$key] = $push_array[$value];
+                } else {
+                    if (!empty($push_array[$value])) {
+                        $array[$key] = $push_array[$value];
+                    }
+                }
+            }
+        }
+    } else {
+        $array = array_merge($array, $push_array);
+    }
+    return $array;
+}
+
+/**
  * 转换md5短码
- * @param $a    md5值
+ * @param string $a    md5值
  * @return string   md5短码
  */
 function sfmd5_short($a){
@@ -876,7 +953,7 @@ function sfdestr($str)
  * @param String $content   内容
  * @param String $title     标题（可选）
  */
-function sfpush_admin_tmp_message($content, $title = 'Message', $level = 'normal')
+function sfpush_admin_tmp_message($content, $title = 'Message', $level = 'normal', $data = array())
 {
     Core_Base::session();
     if (!isset($GLOBALS['admin_timestamp'])) {
@@ -892,6 +969,7 @@ function sfpush_admin_tmp_message($content, $title = 'Message', $level = 'normal
         'level' => $level,
         'title' => $title,
         'content' => $content,
+        'data' => $data,
         'timestamp' => $GLOBALS['admin_timestamp']
     );
     $_SESSION['admin_tmp_messages'] = $messages;
@@ -1311,9 +1389,9 @@ function sfresponse($result = 1, $message = '', $data = '')
     }
     if (!empty($message)) {
         if (defined('FLAG_ADMIN')) {
-            sfpush_admin_tmp_message($message);
+            sfpush_admin_tmp_message($message, '', null, $data);
         } else {
-            sfpush_tmp_message($message);
+            sfpush_tmp_message($message, '', null, $data);
         }
     }
     sfredirect();
@@ -1491,15 +1569,18 @@ function sfdebug_file($name)
     $rootDir = ROOT_DIR . DS . 'shell' . DS . 'tool' . DS . 'debug' . DS;
     $isDebug = false;
     if (sfis_dev_ip()) {
+        //通过开发者来访IP的判断方式
         $isDebug = true;
     }
     if (!empty($_COOKIE['dev_date'])) {
+        //使用 sfenstr(date('Y-m-d')) 写入到cookie的判断方式
         $date = sfdestr($_COOKIE['dev_date']);
         if (date('Y-m-d') == date('Y-m-d', $date)) {
             $isDebug = true;
         }
     }
     if (!$isDebug && $_SESSION['_ende_key'] == 1) {
+        //通过浏览器输入服务器秘钥的判断方式
         $isDebug = true;
     }
     if ($isDebug) {
@@ -1770,17 +1851,6 @@ function sfget_block_file($__FILE__, $name)
     sferror(sprintf('查找不到：' . $file . '文件块！'));
 }
 
-/**
- * 执行控制台日志逻辑
- */
-function sfconsole_logs()
-{
-    if (!empty($_SESSION['_log_flag']) && !empty($GLOBALS['console_logs'])) {
-        $dataJson = sfjson_encode_ex($GLOBALS['console_logs']);
-        $kMd5 = sfmd5_short(md5($dataJson));
-        Core_Cache::instance()->setArea(15)->set('Console:' . Core_Request::instance()->getCurUrl() . '|' . $kMd5, $dataJson);
-    }
-}
 
 /**
  * 结束系统
@@ -1842,7 +1912,16 @@ function sfquit($message = null, $header = true)
     if (Core_Model::isOpen()) {
         sfget_instance('Core_Model')->close();
     }
-    sfconsole_logs();
+    if (!empty($_SESSION['_log_flag']) && !empty($GLOBALS['console_logs'])) {
+        $dataJson = sfjson_encode_ex($GLOBALS['console_logs']);
+        $kMd5 = sfmd5_short(md5($dataJson));
+        Core_Cache::instance()->setArea(15)->set('Console:' . Core_Request::instance()->getCurUrl() . '|' . $kMd5, $dataJson);
+    }
+    if (!empty($_SESSION['_log_flag']) && !empty($GLOBALS['console_logs'])) {
+        $dataJson = sfjson_encode_ex($GLOBALS['console_logs']);
+        $kMd5 = sfmd5_short(md5($dataJson));
+        Core_Cache::instance()->setArea(15)->set('Console:' . Core_Request::instance()->getCurUrl() . '|' . $kMd5, $dataJson);
+    }
     exit();
 }
 

@@ -1,0 +1,164 @@
+<?php echo Admin_AdminController::instance()->getIframeHeader(); ?>
+<style>
+    /* 防止下拉框下拉值被遮盖*/
+    .sf-format-select .layui-table-cell {
+        overflow: visible;
+    }
+
+    .sf-format-select .layui-table-box {
+        overflow: visible;
+    }
+
+    .sf-format-select .layui-table-body {
+        overflow: visible;
+    }
+    /* 调整高度 */
+    td.sf-format-select .layui-form-select{
+        margin-top: -5px;
+    }
+</style>
+    <div class="weadmin-nav">
+    <span class="layui-breadcrumb" style="visibility: visible;">
+        <a href="javascript:;">首页</a><span lay-separator="">/</span>
+        <a href="javascript:;"> <cite>配置中心</cite></a>
+    </span>
+        <a class="layui-btn layui-btn-sm" style="margin-top:3px;float:right"
+           href="javascript:sfreload();" title="刷新">
+            <i class="layui-icon layui-icon-refresh"></i>
+        </a>
+    </div>
+    <div class="weadmin-body">
+        <form id="frmMain" class="layui-form" method="post" onsubmit="return sfsubmiting(check_change)">
+            <div class="weadmin-block" style="text-align: right">
+                <button class="layui-btn layui-btn-normal" lay-submit="" type="submit">保存</button>
+            </div>
+            <div class="layui-row layui-col-space12">
+                <div class="layui-col-md9">
+                    <div class="layui-tab layui-tab-card">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this"><?php echo $name; ?></li>
+                        </ul>
+                        <div class="layui-tab-content" style="min-height: 600px;">
+                            <div class="layui-tab-item layui-show">
+                                <table id="tblMain" lay-filter="tblMain" class="layui-table" cellspacing="0"
+                                       cellpadding="0" border="0">
+                                    <thead>
+                                    <tr>
+                                        <th lay-data="{field:'i', width:60}" style="width: 60px">序号</th>
+                                        <th lay-data="{field:'code', width:180}" style="width: 180px">代码</th>
+                                        <th lay-data="{field:'name', width:150}" style="width: 150px">名称</th>
+                                        <th lay-data="{field:'value'}">数值</th>
+                                        <th lay-data="{field:'note', width:300}" style="width: 300px">说明</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $i = 0;
+                                    foreach ($list as $value) :
+                                        ?>
+                                        <tr>
+                                            <td><?php echo ++$i; ?></td>
+                                            <td><?php echo $value['code']; ?></td>
+                                            <td><?php echo $value['name']; ?></td>
+                                            <td class="sf-format-<?php echo $value['format']; ?>">
+                                                <?php
+                                                    $fileFormat = $this->getTemplateFile('admin/setting/format/' . $value['format']);
+                                                    if (is_file($fileFormat)) {
+                                                        include $fileFormat;
+                                                    } else {
+                                                        include $this->getTemplateFile('admin/setting/format/text');
+                                                    }
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php echo $value['note']; ?>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                    endforeach;
+                                    ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3">
+                    <table class="layui-table" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th>配置组（点击名称管理对应配置）</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><a class="j-sfloading"
+                                   href="<?php echo sfurl('/base_setting/index/group/default'); ?>">默认设置</a>
+                            </td>
+                        </tr>
+                        <?php
+                        foreach ($groupList as $value) :
+                            if ($value['code'] == 'default') {
+                                continue;
+                            }
+                            ?>
+                            <tr>
+                                <td><a class="j-sfloading"
+                                       href="<?php echo sfurl('/base_setting/index/group/' . $value['code']); ?>"><?php echo $value['code']; ?></a>
+                                </td>
+                            </tr>
+                        <?php
+                        endforeach;
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript">
+        function check_change()
+        {
+            var len = $("[name^='id']").length;
+            var qty = 0;//未改值计数
+            $("[name^='id']").each(function() {
+                if ($(this).attr('data') == $(this).val()) {
+                    qty++;
+                    $(this).attr('disabled', true);
+                }
+            });
+            if (len == qty) {
+                $("[name^='id']").attr('disabled', false);
+                layer.msg('配置未变动！');
+                return false;
+            }
+            return true;
+        }
+        layui.use(['table', 'form'], function () {
+            var table = layui.table, form = layui.form;
+            //转换静态表格
+            table.init('tblMain', {});
+            $('.layui-table-cell textarea').each(function (el) {
+                $(this).parent().height(100);
+            });
+            var useSelect = false;
+            $('.layui-form-select').each(function (el) {
+                $(this).parents('td').first().addClass('sf-format-select');
+                useSelect = true;
+            });
+            if (useSelect) {
+                $('.layui-table-box, .layui-table-body').attr('style', 'overflow: visible');
+            }
+
+            form.on('switch(switchCheck)', function(data){
+                if (this.checked) {
+                    $('#id_' + $(data.elem).attr('data-id')).val(1);
+                    $(data.elem).val(1)
+                } else {
+                    $('#id_' + $(data.elem).attr('data-id')).val(0);
+                    $(data.elem).val(0)
+                }
+            });
+        });
+    </script>
+<?php echo Admin_AdminController::instance()->getIframeFooter(); ?>
